@@ -1,9 +1,16 @@
 import {IIfNode, IIndexNode, IMetaNode, IRouteNode, Node, NodeType, RouterCallback} from './router-types';
 import {convertNodeToRegExp, parsePattern} from 'route-pattern';
 
-export function route<Result, Context>(path: string, cb: RouterCallback<Result, Context>): IRouteNode<Result, Context> {
+/**
+ * Creates a content route node.
+ *
+ * @param path The route path pattern.
+ * @param cb The callback that returns the route result.
+ */
+export function route<Result, Context = unknown>(path: string, cb: RouterCallback<Result, Context>): IRouteNode<Result, Context> {
   const pathNode = parsePattern(path);
   const {re, varMap} = convertNodeToRegExp(pathNode);
+
   return {
     nodeType: NodeType.ROUTE,
     pathNode,
@@ -13,7 +20,15 @@ export function route<Result, Context>(path: string, cb: RouterCallback<Result, 
   };
 }
 
-export function iif<Result, Context>(condition: RouterCallback<boolean, Context>, thenNode?: Node<Result, Context>, elseNode?: Node<Result, Context>): IIfNode<Result, Context> {
+/**
+ * Returns a conditional routing node. It uses routes from `thenNode` if `condition` returned truthy value or routes
+ * from `elseNode` otherwise.
+ *
+ * @param condition The callback that returns `true` if routes from `thenNode` must be used.
+ * @param thenNode The node that is used for truthy condition.
+ * @param elseNode The node that is used for falsy condition.
+ */
+export function iif<Result, Context = unknown>(condition: RouterCallback<boolean | unknown, Context>, thenNode?: Node<Result, Context>, elseNode?: Node<Result, Context>): IIfNode<Result, Context> {
   return {
     nodeType: NodeType.IF,
     condition,
@@ -22,29 +37,49 @@ export function iif<Result, Context>(condition: RouterCallback<boolean, Context>
   };
 }
 
-export function index<Result, Context>(children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
+/**
+ * Returns an index node that doesn't do any path matching and forwards routing to its children.
+ *
+ * @param children The list of nodes to match path.
+ */
+export function index<Result, Context = unknown>(children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
 
-export function index<Result, Context>(path: string, children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
+/**
+ * Returns an index node that matches path and then forwards routing of the unmatched path tail to its children.
+ *
+ * @param path The route path pattern.
+ * @param children The list of nodes to match path remainder.
+ */
+export function index<Result, Context = unknown>(path: string, children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
 
-export function index<Result, Context>(path: string | Array<Node<Result, Context>>, children?: Array<Node<Result, Context>>): IIndexNode<Result, Context> {
-  if (typeof path === 'string') {
-    const pathNode = parsePattern(path);
-    const {re, varMap} = convertNodeToRegExp(pathNode);
+export function index<Result, Context = unknown>(path: string | Array<Node<Result, Context>>, children?: Array<Node<Result, Context>>): IIndexNode<Result, Context> {
+
+  if (Array.isArray(path)) {
     return {
       nodeType: NodeType.INDEX,
-      children: children!,
-      pathNode,
-      re,
-      varMap,
+      children: path,
     };
   }
+
+  const pathNode = parsePattern(path);
+  const {re, varMap} = convertNodeToRegExp(pathNode);
+
   return {
     nodeType: NodeType.INDEX,
-    children: path,
+    children: children!,
+    pathNode,
+    re,
+    varMap,
   };
 }
 
-export function meta<Result, Context>(meta: any, childNode: Node<Result, Context>): IMetaNode<Result, Context> {
+/**
+ * Returns the meta node that holds metadata that may be useful during node tree inspection.
+ *
+ * @param meta The metadata stored in this node.
+ * @param childNode The node to which routing is forwarded.
+ */
+export function meta<Result, Context = unknown>(meta: unknown, childNode: Node<Result, Context>): IMetaNode<Result, Context> {
   return {
     nodeType: NodeType.META,
     meta,

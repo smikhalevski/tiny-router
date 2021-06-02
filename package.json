@@ -1,6 +1,7 @@
 {
   "name": "async-router",
   "version": "1.0.0",
+  "description": "The universal router, that supports complex route patterns and conditional routing.",
   "main": "./lib/index-cjs.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -23,7 +24,10 @@
     "url",
     "path",
     "route",
-    "router"
+    "router",
+    "lazy",
+    "tiny",
+    "import"
   ],
   "author": "Savva Mikhalevski <smikhalevski@gmail.com>",
   "license": "MIT",
