@@ -1,4 +1,4 @@
-# async-router
+# async-router [![Build Status](https://travis-ci.com/smikhalevski/async-router.svg?branch=main)](https://travis-ci.com/smikhalevski/async-router)
 
 The universal router, that supports complex route patterns and conditional routing.
 
