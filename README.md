@@ -1,14 +1,22 @@
-# async-router [![Build Status](https://travis-ci.com/smikhalevski/async-router.svg?branch=main)](https://travis-ci.com/smikhalevski/async-router)
+# tiny-router [![Build Status](https://travis-ci.com/smikhalevski/tiny-router.svg?branch=main)](https://travis-ci.com/smikhalevski/tiny-router)
 
 The universal router, that supports complex route patterns and conditional routing.
 
-**Note:** This library is intended only for matching paths against path patterns and invoking associated callbacks. It
+This package is tiny and has no dependencies. [Just 3 kB gzipped.](https://bundlephobia.com/package/@smikhalevski/tiny-router)
+
+```sh
+npm install --save-prod @smikhalevski/tiny-router
+```
+
+# Usage
+
+This library is intended only for matching paths against path patterns and invoking associated callbacks. It
 has neither fancy browser history bindings nor other framework or library dependencies.
 
 [Read more about path pattern syntax.](https://github.com/smikhalevski/route-pattern)
 
 ```ts
-import {iif, index, route, resolveRoute} from '@smikhalevski/async-router';
+import {iif, index, route, resolveRoute} from '@smikhalevski/tiny-router';
 
 interface IMyContext {
   loggedIn?: boolean;

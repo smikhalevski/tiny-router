@@ -1,5 +1,5 @@
 {
-  "name": "@smikhalevski/async-router",
+  "name": "@smikhalevski/tiny-router",
   "version": "1.0.0",
   "description": "The universal router, that supports complex route patterns and conditional routing.",
   "main": "./lib/index-cjs.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smikhalevski/async-router.git"
+    "url": "git+https://github.com/smikhalevski/tiny-router.git"
   },
   "keywords": [
     "url",
@@ -32,9 +32,9 @@
   "author": "Savva Mikhalevski <smikhalevski@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/smikhalevski/async-router/issues"
+    "url": "https://github.com/smikhalevski/tiny-router/issues"
   },
-  "homepage": "https://github.com/smikhalevski/async-router#readme",
+  "homepage": "https://github.com/smikhalevski/tiny-router#readme",
   "jest": {
     "preset": "ts-jest"
   },
@@ -48,6 +48,6 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@smikhalevski/route-pattern": "1.0.0"
+    "@smikhalevski/route-pattern": "^1.0.0"
   }
 }
