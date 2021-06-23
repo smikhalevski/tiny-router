@@ -8,7 +8,7 @@ has neither fancy browser history bindings nor other framework or library depend
 [Read more about path pattern syntax.](https://github.com/smikhalevski/route-pattern)
 
 ```ts
-import {iif, index, meta, route, resolveRoute, RouterCallback} from 'async-router';
+import {iif, index, route, resolveRoute} from '@smikhalevski/async-router';
 
 interface IMyContext {
   loggedIn?: boolean;
@@ -18,8 +18,10 @@ interface IMyContext {
 const routes = index<string, IMyContext | undefined>([
 
   route('/', () => 'Landing'),
+
   route('/login', () => 'Login'),
-  route('/search', () => 'Search'),
+
+  route('/product/*:productSku(A\\dB\\d{4})', (vars) => 'Product ' + vars.productSku),
 
   iif(
       (vars, context) => context?.loggedIn,
@@ -27,14 +29,13 @@ const routes = index<string, IMyContext | undefined>([
       index([
 
         route('/profile', () => 'Profile'),
-        route('/cart', () => 'Cart'),
 
         iif(
             (vars, context) => context?.admin,
 
             index('/admin', [
+
               route('/user/:userId(\\d+)', (vars) => 'User ' + vars.userId),
-              route('/product/:productSku', (vars) => 'Product ' + vars.productSku),
             ]),
         ),
       ]),
@@ -46,6 +47,9 @@ const routes = index<string, IMyContext | undefined>([
 resolveRoute(routes, '/'); // → {result: 'Landing', vars: {}}
 
 resolveRoute(routes, '/login'); // → {result: 'Login', vars: {}}
+
+resolveRoute(routes, '/product/Riding-Mower-A1B2011');
+  // → {result: 'Product A1B2011', vars: {productSku: 'A1B2011'}}
 
 resolveRoute(routes, '/profile'); // → {result: 'Not Found', vars: {}}
 

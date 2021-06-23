@@ -1,5 +1,5 @@
 {
-  "name": "async-router",
+  "name": "@smikhalevski/async-router",
   "version": "1.0.0",
   "description": "The universal router, that supports complex route patterns and conditional routing.",
   "main": "./lib/index-cjs.js",
@@ -48,6 +48,6 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "route-pattern": "1.0.0"
+    "@smikhalevski/route-pattern": "1.0.0"
   }
 }

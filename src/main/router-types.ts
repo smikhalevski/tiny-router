@@ -1,4 +1,4 @@
-import {IPathNode} from 'route-pattern';
+import {IPathNode} from '@smikhalevski/route-pattern';
 
 export type RouterCallback<Result, Context> = (vars: Record<string, string>, context: Context) => Result;
 
@@ -19,7 +19,6 @@ export interface IRouteNode<Result, Context> {
   nodeType: NodeType.ROUTE;
   pathNode: IPathNode;
   re: RegExp;
-  varMap: Record<string, number>;
   cb: RouterCallback<Result, Context>;
 }
 
@@ -27,7 +26,6 @@ export interface IIndexNode<Result, Context> {
   nodeType: NodeType.INDEX;
   pathNode?: IPathNode;
   re?: RegExp;
-  varMap?: Record<string, number>;
   children: Array<Node<Result, Context>>;
 }
 

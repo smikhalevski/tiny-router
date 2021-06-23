@@ -40,21 +40,25 @@ export function resolveRoute(node: Node<unknown, any>, path: string, context?: u
       if (arr == null || arr[0] !== path) {
         return null;
       }
-      vars = pickVars(arr, node.varMap, vars);
+      if (arr.groups) {
+        vars = Object.assign({}, vars, arr.groups);
+      }
       return {
         result: node.cb(vars, context),
         vars,
       };
 
     case NodeType.INDEX:
-      if (node.re != null && node.varMap != null) {
+      if (node.re != null) {
         const arr = node.re.exec(path);
 
         if (arr == null) {
           return null;
         }
         path = path.substring(arr[0].length);
-        vars = pickVars(arr, node.varMap, vars);
+        if (arr.groups) {
+          vars = Object.assign({}, vars, arr.groups);
+        }
       }
 
       for (let i = 0; i < node.children.length; i++) {
@@ -76,19 +80,4 @@ export function resolveRoute(node: Node<unknown, any>, path: string, context?: u
     case NodeType.META:
       return resolveRoute(node.childNode, path, context, vars);
   }
-}
-
-function pickVars(arr: RegExpExecArray, varMap: Record<string, number>, vars: Record<string, string>): Record<string, string> {
-  if (arr.length === 1) {
-    return vars;
-  }
-
-  vars = Object.assign({}, vars);
-
-  for (const key in varMap) {
-    if (varMap.hasOwnProperty(key)) {
-      vars[key] = arr[varMap[key]];
-    }
-  }
-  return vars;
 }

@@ -1,5 +1,5 @@
 import {IIfNode, IIndexNode, IMetaNode, IRouteNode, Node, NodeType, RouterCallback} from './router-types';
-import {convertNodeToRegExp, parsePattern} from 'route-pattern';
+import {convertNodeToRegExp, parsePattern} from '@smikhalevski/route-pattern';
 
 /**
  * Creates a content route node.
@@ -9,13 +9,12 @@ import {convertNodeToRegExp, parsePattern} from 'route-pattern';
  */
 export function route<Result, Context = unknown>(path: string, cb: RouterCallback<Result, Context>): IRouteNode<Result, Context> {
   const pathNode = parsePattern(path);
-  const {re, varMap} = convertNodeToRegExp(pathNode);
+  const re = convertNodeToRegExp(pathNode);
 
   return {
     nodeType: NodeType.ROUTE,
     pathNode,
     re,
-    varMap,
     cb,
   };
 }
@@ -62,14 +61,13 @@ export function index<Result, Context = unknown>(path: string | Array<Node<Resul
   }
 
   const pathNode = parsePattern(path);
-  const {re, varMap} = convertNodeToRegExp(pathNode);
+  const re = convertNodeToRegExp(pathNode);
 
   return {
     nodeType: NodeType.INDEX,
     children: children!,
     pathNode,
     re,
-    varMap,
   };
 }
 

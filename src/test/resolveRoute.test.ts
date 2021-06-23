@@ -195,8 +195,10 @@ describe('resolveRoute', () => {
     const routes = index<string, IMyContext | undefined>([
 
       route('/', () => 'Landing'),
+
       route('/login', () => 'Login'),
-      route('/search', () => 'Search'),
+
+      route('/product/*:productSku(A\\dB\\d{4})', (vars) => 'Product ' + vars.productSku),
 
       iif(
           (vars, context) => context?.loggedIn,
@@ -204,14 +206,13 @@ describe('resolveRoute', () => {
           index([
 
             route('/profile', () => 'Profile'),
-            route('/cart', () => 'Cart'),
 
             iif(
                 (vars, context) => context?.admin,
 
                 index('/admin', [
+
                   route('/user/:userId(\\d+)', (vars) => 'User ' + vars.userId),
-                  route('/product/:productSku', (vars) => 'Product ' + vars.productSku),
                 ]),
             ),
           ]),
@@ -223,6 +224,9 @@ describe('resolveRoute', () => {
     expect(resolveRoute(routes, '/')).toEqual({result: 'Landing', vars: {}});
 
     expect(resolveRoute(routes, '/login')).toEqual({result: 'Login', vars: {}});
+
+    expect(resolveRoute(routes, '/product/Riding-Mower-A1B2011'))
+        .toEqual({result: 'Product A1B2011', vars: {productSku: 'A1B2011'}});
 
     expect(resolveRoute(routes, '/profile')).toEqual({result: 'Not Found', vars: {}});
 
