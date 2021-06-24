@@ -195,25 +195,24 @@ describe('resolveRoute', () => {
     const routes = index<string, IMyContext | undefined>([
 
       route('/', () => 'Landing'),
-
       route('/login', () => 'Login'),
-
       route('/product/*:productSku(A\\dB\\d{4})', (vars) => 'Product ' + vars.productSku),
 
-      iif(
-          (vars, context) => context?.loggedIn,
-
+      iif((vars, context) => context?.loggedIn,
           index([
 
             route('/profile', () => 'Profile'),
 
-            iif(
-                (vars, context) => context?.admin,
+            iif((vars, context) => context?.admin,
 
+                // context.admin == true
                 index('/admin', [
 
                   route('/user/:userId(\\d+)', (vars) => 'User ' + vars.userId),
                 ]),
+
+                // context.admin == false
+                route('**', () => 'Forbidden'),
             ),
           ]),
       ),
@@ -235,6 +234,9 @@ describe('resolveRoute', () => {
 
     expect(resolveRoute(routes, '/admin/user/123'))
         .toEqual({result: 'Not Found', vars: {}});
+
+    expect(resolveRoute(routes, '/admin/user/123', {loggedIn: true}))
+        .toEqual({result: 'Forbidden', vars: {}});
 
     expect(resolveRoute(routes, '/admin/user/123', {loggedIn: true, admin: true}))
         .toEqual({result: 'User 123', vars: {userId: '123'}});
