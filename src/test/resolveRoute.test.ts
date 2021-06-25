@@ -1,4 +1,4 @@
-import {resolveRoute} from '../main/resolveRoute';
+import {IRouteResolution, resolveRoute} from '../main/resolveRoute';
 import {iif, index, meta, route} from '../main/router-dsl';
 
 describe('resolveRoute', () => {
@@ -7,7 +7,17 @@ describe('resolveRoute', () => {
     const cbMock = jest.fn(() => 111);
 
     expect(resolveRoute(route('/foo', cbMock), '/foo'))
-        .toEqual({result: 111, vars: {}});
+        .toEqual<IRouteResolution<number>>({result: 111, params: {}});
+
+    expect(cbMock).toHaveBeenCalledTimes(1);
+    expect(cbMock).toHaveBeenCalledWith({}, undefined);
+  });
+
+  test('ignores trailing path separator', () => {
+    const cbMock = jest.fn(() => 111);
+
+    expect(resolveRoute(route('/foo', cbMock), '/foo/'))
+        .toEqual<IRouteResolution<number>>({result: 111, params: {}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({}, undefined);
@@ -27,17 +37,17 @@ describe('resolveRoute', () => {
     const cbMock = jest.fn(() => 111);
 
     expect(resolveRoute(route('/foo', cbMock), '/foo', {bar: 222}))
-        .toEqual({result: 111, vars: {}});
+        .toEqual<IRouteResolution<number>>({result: 111, params: {}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({}, {bar: 222});
   });
 
-  test('propagates vars to route', () => {
+  test('propagates params to route', () => {
     const cbMock = jest.fn(() => 111);
 
     expect(resolveRoute(route('/:foo', cbMock), '/bar', null, {aaa: 'bbb'}))
-        .toEqual({result: 111, vars: {aaa: 'bbb', foo: 'bar'}});
+        .toEqual<IRouteResolution<number>>({result: 111, params: {aaa: 'bbb', foo: 'bar'}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({aaa: 'bbb', foo: 'bar'}, null);
@@ -47,27 +57,27 @@ describe('resolveRoute', () => {
     const cbMock = jest.fn(() => 111);
 
     expect(resolveRoute(index([route('/foo', cbMock)]), '/foo'))
-        .toEqual({result: 111, vars: {}});
+        .toEqual<IRouteResolution<number>>({result: 111, params: {}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({}, undefined);
   });
 
-  test('index chops off leading path', () => {
+  test('partial route chops off leading path', () => {
     const cbMock = jest.fn(() => 111);
 
-    expect(resolveRoute(index('/foo', [route('/bar', cbMock)]), '/foo/bar'))
-        .toEqual({result: 111, vars: {}});
+    expect(resolveRoute(route('/foo', [route('/bar', cbMock)]), '/foo/bar'))
+        .toEqual<IRouteResolution<number>>({result: 111, params: {}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({}, undefined);
   });
 
-  test('index delegates vars to routes', () => {
+  test('partial route delegates params to routes', () => {
     const cbMock = jest.fn(() => 111);
 
-    expect(resolveRoute(index('/:foo', [route('/:bar', cbMock)]), '/aaa/bbb'))
-        .toEqual({result: 111, vars: {foo: 'aaa', bar: 'bbb'}});
+    expect(resolveRoute(route('/:foo', [route('/:bar', cbMock)]), '/aaa/bbb'))
+        .toEqual<IRouteResolution<number>>({result: 111, params: {foo: 'aaa', bar: 'bbb'}});
 
     expect(cbMock).toHaveBeenCalledTimes(1);
     expect(cbMock).toHaveBeenCalledWith({foo: 'aaa', bar: 'bbb'}, undefined);
@@ -170,19 +180,19 @@ describe('resolveRoute', () => {
 
   test('resolves complex routes', () => {
 
-    const routes = index<number | string>('/foo', [
+    const routes = route<number | string>('/foo', [
       route('/bar', () => 111),
       iif(
           () => true,
-          index('/bar', [
-            route('/:baz{aaa, bbb}', (vars) => vars.baz + 222),
+          route('/bar', [
+            route('/:baz{aaa, bbb}', (params) => params.baz + 222),
           ]),
       ),
     ]);
 
     expect(resolveRoute(routes, '/foo/bar/aaa')).toEqual({
       result: 'aaa222',
-      vars: {baz: 'aaa'},
+      params: {baz: 'aaa'},
     });
   });
 
@@ -196,19 +206,19 @@ describe('resolveRoute', () => {
 
       route('/', () => 'Landing'),
       route('/login', () => 'Login'),
-      route('/product/*:productSku(A\\dB\\d{4})', (vars) => 'Product ' + vars.productSku),
+      route('/product/*:productSku(A\\dB\\d{4})', (params) => 'Product ' + params.productSku),
 
-      iif((vars, context) => context?.loggedIn,
+      iif((params, context) => context?.loggedIn,
           index([
 
             route('/profile', () => 'Profile'),
 
-            iif((vars, context) => context?.admin,
+            iif((params, context) => context?.admin,
 
                 // context.admin == true
-                index('/admin', [
+                route('/admin', [
 
-                  route('/user/:userId(\\d+)', (vars) => 'User ' + vars.userId),
+                  route('/user/:userId(\\d+)', (params) => 'User ' + params.userId),
                 ]),
 
                 // context.admin == false
@@ -220,25 +230,25 @@ describe('resolveRoute', () => {
       route('**', () => 'Not Found'),
     ]);
 
-    expect(resolveRoute(routes, '/')).toEqual({result: 'Landing', vars: {}});
+    expect(resolveRoute(routes, '/')).toEqual({result: 'Landing', params: {}});
 
-    expect(resolveRoute(routes, '/login')).toEqual({result: 'Login', vars: {}});
+    expect(resolveRoute(routes, '/login')).toEqual({result: 'Login', params: {}});
 
     expect(resolveRoute(routes, '/product/Riding-Mower-A1B2011'))
-        .toEqual({result: 'Product A1B2011', vars: {productSku: 'A1B2011'}});
+        .toEqual({result: 'Product A1B2011', params: {productSku: 'A1B2011'}});
 
-    expect(resolveRoute(routes, '/profile')).toEqual({result: 'Not Found', vars: {}});
+    expect(resolveRoute(routes, '/profile')).toEqual({result: 'Not Found', params: {}});
 
     expect(resolveRoute(routes, '/profile', {loggedIn: true}))
-        .toEqual({result: 'Profile', vars: {}});
+        .toEqual({result: 'Profile', params: {}});
 
     expect(resolveRoute(routes, '/admin/user/123'))
-        .toEqual({result: 'Not Found', vars: {}});
+        .toEqual({result: 'Not Found', params: {}});
 
     expect(resolveRoute(routes, '/admin/user/123', {loggedIn: true}))
-        .toEqual({result: 'Forbidden', vars: {}});
+        .toEqual({result: 'Forbidden', params: {}});
 
     expect(resolveRoute(routes, '/admin/user/123', {loggedIn: true, admin: true}))
-        .toEqual({result: 'User 123', vars: {userId: '123'}});
+        .toEqual({result: 'User 123', params: {userId: '123'}});
   });
 });

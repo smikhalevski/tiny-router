@@ -8,9 +8,9 @@ export interface IRouteResolution<Result> {
   result: Result;
 
   /**
-   * Values extracted from the route path.
+   * Params extracted from the route path.
    */
-  vars: Record<string, string>;
+  params: Record<string, string>;
 }
 
 /**
@@ -27,57 +27,51 @@ export function resolveRoute<Result>(node: Node<Result, undefined>, path: string
  * @param node The root node of the route tree.
  * @param path The path to match against routes.
  * @param context The context that route and condition callbacks can use.
- * @param vars The initial vars.
+ * @param params The initial params.
  */
-export function resolveRoute<Result, Context>(node: Node<Result, Context>, path: string, context: Context, vars?: Record<string, string>): IRouteResolution<Result> | null;
+export function resolveRoute<Result, Context>(node: Node<Result, Context>, path: string, context: Context, params?: Record<string, string>): IRouteResolution<Result> | null;
 
-export function resolveRoute(node: Node<unknown, any>, path: string, context?: unknown, vars: Record<string, string> = {}): IRouteResolution<unknown> | null {
+export function resolveRoute(node: Node<unknown, any>, path: string, context?: unknown, params: Record<string, string> = {}): IRouteResolution<unknown> | null {
   switch (node.nodeType) {
 
     case NodeType.ROUTE:
+    case NodeType.PARTIAL_ROUTE:
       const arr = node.re.exec(path);
-
-      if (arr == null || arr[0] !== path) {
+      if (!arr) {
         return null;
       }
       if (arr.groups) {
-        vars = Object.assign({}, vars, arr.groups);
+        params = Object.assign({}, params, arr.groups);
       }
-      return {
-        result: node.cb(vars, context),
-        vars,
-      };
+      path = path.substring(arr[0].length);
+
+      if (node.nodeType === NodeType.ROUTE) {
+        if (path.length === 0 || path === '/') {
+          return {
+            result: node.cb(params, context),
+            params: params,
+          };
+        }
+        return null;
+      }
 
     case NodeType.INDEX:
-      if (node.re != null) {
-        const arr = node.re.exec(path);
-
-        if (arr == null) {
-          return null;
-        }
-        path = path.substring(arr[0].length);
-        if (arr.groups) {
-          vars = Object.assign({}, vars, arr.groups);
-        }
-      }
-
       for (let i = 0; i < node.children.length; i++) {
-        const res = resolveRoute(node.children[i], path, context, vars);
-
-        if (res !== null) {
+        const res = resolveRoute(node.children[i], path, context, params);
+        if (res) {
           return res;
         }
       }
       return null;
 
     case NodeType.IF:
-      if (node.condition(vars, context)) {
-        return node.thenNode ? resolveRoute(node.thenNode, path, context, vars) : null;
+      if (node.condition(params, context)) {
+        return node.thenNode ? resolveRoute(node.thenNode, path, context, params) : null;
       } else {
-        return node.elseNode ? resolveRoute(node.elseNode, path, context, vars) : null;
+        return node.elseNode ? resolveRoute(node.elseNode, path, context, params) : null;
       }
 
     case NodeType.META:
-      return resolveRoute(node.childNode, path, context, vars);
+      return resolveRoute(node.childNode, path, context, params);
   }
 }
