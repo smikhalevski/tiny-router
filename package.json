@@ -48,6 +48,6 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@smikhalevski/route-pattern": "^1.0.0"
+    "@smikhalevski/route-pattern": "^1.0.1"
   }
 }

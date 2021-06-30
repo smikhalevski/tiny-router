@@ -1,5 +1,22 @@
-import {IIfNode, IIndexNode, IMetaNode, IRouteNode, Node, NodeType, RouterCallback} from './router-types';
+import {
+  IIfNode,
+  IIndexNode,
+  IMetaNode,
+  IPartialRouteNode,
+  IRouteNode,
+  Node,
+  NodeType,
+  RouterCallback,
+} from './router-types';
 import {convertNodeToRegExp, parsePattern} from '@smikhalevski/route-pattern';
+
+/**
+ * Returns an partial route node that matches path and then forwards routing of the unmatched path tail to its children.
+ *
+ * @param path The route path pattern.
+ * @param children The list of nodes to match path remainder.
+ */
+export function route<Result, Context = unknown>(path: string, children: Array<Node<Result, Context>>): IPartialRouteNode<Result, Context>;
 
 /**
  * Creates a content route node.
@@ -7,15 +24,28 @@ import {convertNodeToRegExp, parsePattern} from '@smikhalevski/route-pattern';
  * @param path The route path pattern.
  * @param cb The callback that returns the route result.
  */
-export function route<Result, Context = unknown>(path: string, cb: RouterCallback<Result, Context>): IRouteNode<Result, Context> {
+export function route<Result, Context = unknown>(path: string, cb: RouterCallback<Result, Context>): IRouteNode<Result, Context>;
+
+export function route<Result, Context = unknown>(path: string, arg: Array<Node<Result, Context>> | RouterCallback<Result, Context>): IRouteNode<Result, Context> | IPartialRouteNode<Result, Context> {
   const pathNode = parsePattern(path);
   const re = convertNodeToRegExp(pathNode);
 
+  if (Array.isArray(arg)) {
+    return {
+      nodeType: NodeType.PARTIAL_ROUTE,
+      path,
+      pathNode,
+      re,
+      children: arg,
+    };
+  }
+
   return {
     nodeType: NodeType.ROUTE,
+    path,
     pathNode,
     re,
-    cb,
+    cb: arg,
   };
 }
 
@@ -27,7 +57,7 @@ export function route<Result, Context = unknown>(path: string, cb: RouterCallbac
  * @param thenNode The node that is used for truthy condition.
  * @param elseNode The node that is used for falsy condition.
  */
-export function iif<Result, Context = unknown>(condition: RouterCallback<boolean | unknown, Context>, thenNode?: Node<Result, Context>, elseNode?: Node<Result, Context>): IIfNode<Result, Context> {
+export function iif<Result, Context = unknown>(condition: RouterCallback<boolean | unknown, Context>, thenNode: Node<Result, Context> | null = null, elseNode: Node<Result, Context> | null = null): IIfNode<Result, Context> {
   return {
     nodeType: NodeType.IF,
     condition,
@@ -41,33 +71,10 @@ export function iif<Result, Context = unknown>(condition: RouterCallback<boolean
  *
  * @param children The list of nodes to match path.
  */
-export function index<Result, Context = unknown>(children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
-
-/**
- * Returns an index node that matches path and then forwards routing of the unmatched path tail to its children.
- *
- * @param path The route path pattern.
- * @param children The list of nodes to match path remainder.
- */
-export function index<Result, Context = unknown>(path: string, children: Array<Node<Result, Context>>): IIndexNode<Result, Context>;
-
-export function index<Result, Context = unknown>(path: string | Array<Node<Result, Context>>, children?: Array<Node<Result, Context>>): IIndexNode<Result, Context> {
-
-  if (Array.isArray(path)) {
-    return {
-      nodeType: NodeType.INDEX,
-      children: path,
-    };
-  }
-
-  const pathNode = parsePattern(path);
-  const re = convertNodeToRegExp(pathNode);
-
+export function index<Result, Context = unknown>(children: Array<Node<Result, Context>>): IIndexNode<Result, Context> {
   return {
     nodeType: NodeType.INDEX,
-    children: children!,
-    pathNode,
-    re,
+    children,
   };
 }
 
