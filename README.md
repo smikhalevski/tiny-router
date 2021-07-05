@@ -1,4 +1,4 @@
-# tiny-router [![Build Status](https://travis-ci.com/smikhalevski/tiny-router.svg?branch=main)](https://travis-ci.com/smikhalevski/tiny-router)
+# tiny-router [![build](https://github.com/smikhalevski/tiny-router/actions/workflows/master.yml/badge.svg?branch=master&event=push)](https://github.com/smikhalevski/tiny-router/actions/workflows/master.yml)
 
 The universal router, that supports complex route patterns and conditional routing.
 
