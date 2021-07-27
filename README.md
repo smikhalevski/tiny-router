@@ -13,6 +13,8 @@ fancy browser history bindings nor other framework or library dependencies.
 
 # Usage
 
+⚠️ [API documentation is available here.](https://smikhalevski.github.io/tiny-router/)
+
 [Read more about path pattern syntax.](https://github.com/smikhalevski/route-pattern)
 
 ```ts
