@@ -36,14 +36,14 @@ export function resolveRoute(node: Node<unknown, any>, path: string, context?: u
 
     case NodeType.ROUTE:
     case NodeType.PARTIAL_ROUTE:
-      const arr = node.re.exec(path);
-      if (!arr) {
+      const match = node.re.exec(path);
+      if (!match) {
         return null;
       }
-      if (arr.groups) {
-        params = Object.assign({}, params, arr.groups);
+      if (match.groups) {
+        params = Object.assign({}, params, match.groups);
       }
-      path = path.substring(arr[0].length);
+      path = path.substring(match[0].length);
 
       if (node.nodeType === NodeType.ROUTE) {
         if (path.length === 0 || path === '/') {
