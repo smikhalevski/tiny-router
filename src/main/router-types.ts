@@ -1,6 +1,6 @@
 import {IPathNode} from '@smikhalevski/route-pattern';
 
-export type RouterCallback<Result, Context> = (params: Record<string, string>, context: Context) => Result;
+export type RouterCallback<R, C> = (params: Record<string, string>, context: C) => R;
 
 export const enum NodeType {
   ROUTE,
@@ -10,43 +10,51 @@ export const enum NodeType {
   META,
 }
 
-export type Node<Result, Context> =
-    | IRouteNode<Result, Context>
-    | IPartialRouteNode<Result, Context>
-    | IIndexNode<Result, Context>
-    | IIfNode<Result, Context>
-    | IMetaNode<Result, Context>;
+export type Node<R, C> =
+    | IRouteNode<R, C>
+    | ContainerNode<R, C>;
 
-export interface IRouteNode<Result, Context> {
+export type ContainerNode<R, C> =
+    | IPartialRouteNode<R, C>
+    | IIndexNode<R, C>
+    | IIfNode<R, C>
+    | IMetaNode<R, C>;
+
+export interface INode<R, C> {
+  nodeType: NodeType;
+  parent: ContainerNode<R, C> | null;
+}
+
+export interface IRouteNode<R, C> extends INode<R, C> {
   nodeType: NodeType.ROUTE;
-  path: string;
-  pathNode: IPathNode;
+  rawPath: string;
+  path: IPathNode;
   re: RegExp;
-  cb: RouterCallback<Result, Context>;
+  cb: RouterCallback<R, C>;
 }
 
-export interface IPartialRouteNode<Result, Context> {
+export interface IPartialRouteNode<R, C> extends INode<R, C> {
   nodeType: NodeType.PARTIAL_ROUTE;
-  path: string;
-  pathNode: IPathNode;
+  rawPath: string;
+  path: IPathNode;
   re: RegExp;
-  children: Array<Node<Result, Context>>;
+  children: Node<R, C>[];
 }
 
-export interface IIndexNode<Result, Context> {
+export interface IIndexNode<R, C> extends INode<R, C> {
   nodeType: NodeType.INDEX;
-  children: Array<Node<Result, Context>>;
+  children: Node<R, C>[];
 }
 
-export interface IIfNode<Result, Context> {
+export interface IIfNode<R, C> extends INode<R, C> {
   nodeType: NodeType.IF;
-  condition: RouterCallback<boolean | unknown, Context>;
-  thenNode: Node<Result, Context> | null;
-  elseNode: Node<Result, Context> | null;
+  condition: RouterCallback<boolean | unknown, C>;
+  then: Node<R, C> | null;
+  else: Node<R, C> | null;
 }
 
-export interface IMetaNode<Result, Context> {
+export interface IMetaNode<R, C> extends INode<R, C> {
   nodeType: NodeType.META;
+  child: Node<R, C>;
   meta: any;
-  childNode: Node<Result, Context>;
 }

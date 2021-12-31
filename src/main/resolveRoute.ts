@@ -1,11 +1,11 @@
 import {Node, NodeType} from './router-types';
 
-export interface IRouteResolution<Result> {
+export interface IRouteResolution<R> {
 
   /**
    * The result returned by route callback.
    */
-  result: Result;
+  result: R;
 
   /**
    * Params extracted from the route path.
@@ -18,8 +18,11 @@ export interface IRouteResolution<Result> {
  *
  * @param node The root node of the route tree.
  * @param path The path to match against routes.
+ *
+ * @template R The type of the result returned by route callback.
+ * @template C The type of the context passed to the route callback.
  */
-export function resolveRoute<Result>(node: Node<Result, undefined>, path: string): IRouteResolution<Result> | null;
+export function resolveRoute<R>(node: Node<R, undefined>, path: string): IRouteResolution<R> | null;
 
 /**
  * Finds route in `node` that matches `path`.
@@ -27,21 +30,26 @@ export function resolveRoute<Result>(node: Node<Result, undefined>, path: string
  * @param node The root node of the route tree.
  * @param path The path to match against routes.
  * @param context The context that route and condition callbacks can use.
- * @param params The initial params.
+ * @param params The mutable object that would contain params extracted from path.
+ *
+ * @template R The type of the result returned by route callback.
+ * @template C The type of the context passed to the route callback.
  */
-export function resolveRoute<Result, Context>(node: Node<Result, Context>, path: string, context: Context, params?: Record<string, string>): IRouteResolution<Result> | null;
+export function resolveRoute<R, C>(node: Node<R, C>, path: string, context: C, params?: Record<string, string>): IRouteResolution<R> | null;
 
 export function resolveRoute(node: Node<unknown, any>, path: string, context?: unknown, params: Record<string, string> = {}): IRouteResolution<unknown> | null {
   switch (node.nodeType) {
 
     case NodeType.ROUTE:
     case NodeType.PARTIAL_ROUTE:
+
       const match = node.re.exec(path);
+
       if (!match) {
         return null;
       }
       if (match.groups) {
-        params = Object.assign({}, params, match.groups);
+        Object.assign(params, match.groups);
       }
       path = path.substring(match[0].length);
 
@@ -56,8 +64,8 @@ export function resolveRoute(node: Node<unknown, any>, path: string, context?: u
       }
 
     case NodeType.INDEX:
-      for (let i = 0; i < node.children.length; i++) {
-        const res = resolveRoute(node.children[i], path, context, params);
+      for (const child of node.children) {
+        const res = resolveRoute(child, path, context, params);
         if (res) {
           return res;
         }
@@ -66,12 +74,12 @@ export function resolveRoute(node: Node<unknown, any>, path: string, context?: u
 
     case NodeType.IF:
       if (node.condition(params, context)) {
-        return node.thenNode ? resolveRoute(node.thenNode, path, context, params) : null;
+        return node.then ? resolveRoute(node.then, path, context, params) : null;
       } else {
-        return node.elseNode ? resolveRoute(node.elseNode, path, context, params) : null;
+        return node.else ? resolveRoute(node.else, path, context, params) : null;
       }
 
     case NodeType.META:
-      return resolveRoute(node.childNode, path, context, params);
+      return resolveRoute(node.child, path, context, params);
   }
 }
