@@ -2,10 +2,10 @@
 
 The universal router, that supports complex route patterns and conditional routing.
 
-This package is tiny, [just 2.5 kB gzipped.](https://bundlephobia.com/package/@smikhalevski/tiny-router)
+This package is tiny, [just 2.5 kB gzipped.](https://bundlephobia.com/package/@tiny-router/router)
 
 ```sh
-npm install --save-prod @smikhalevski/tiny-router
+npm install --save-prod @tiny-router/router
 ```
 
 This library is intended only for matching paths against path patterns and invoking associated callbacks. It has neither
@@ -18,7 +18,7 @@ fancy browser history bindings nor other framework or library dependencies.
 [Read more about path pattern syntax.](https://github.com/smikhalevski/route-pattern)
 
 ```ts
-import {iif, index, route, resolveRoute} from '@smikhalevski/tiny-router';
+import {iif, index, route, resolveRoute} from '@tiny-router/router';
 
 interface IMyContext {
   loggedIn?: boolean;
@@ -84,7 +84,7 @@ You can employ `meta` DSL callback to add metadata to the node tree. Meta doesn'
 and can be used during the manual node tree traversal.
 
 ```ts
-import {index, route, meta} from '@smikhalevski/tiny-router';
+import {index, route, meta} from '@tiny-router/router';
 
 const routes = index([
   meta({myMeta: true},
@@ -111,7 +111,7 @@ export default Hello;
 
 ```ts
 // ./index.ts
-import {index, route, resolveRoute} from '@smikhalevski/tiny-router';
+import {index, route, resolveRoute} from '@tiny-router/router';
 
 const routes = index<{ default: React.FC<{ name: string }> }>([
 

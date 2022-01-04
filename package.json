@@ -1,66 +1,23 @@
 {
-  "name": "@smikhalevski/tiny-router",
-  "version": "1.1.0",
-  "description": "The universal router, that supports complex route patterns and conditional routing.",
-  "main": "./lib/index-cjs.js",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
-  "sideEffects": false,
-  "files": [
-    "lib"
-  ],
+  "name": "tiny-router",
+  "private": true,
   "scripts": {
-    "build": "tsc && npm run rollup && npm run terser",
-    "rollup": "rollup --external @smikhalevski/route-pattern --input ./lib/index.js --file ./lib/index-cjs.js --format cjs --plugin @rollup/plugin-node-resolve",
-    "terser": "terser --compress --mangle toplevel --output ./lib/index-cjs.js -- ./lib/index-cjs.js",
-    "clean": "rm -rf ./lib ./docs",
-    "test": "jest --detectOpenHandles",
-    "docs": "typedoc ./src/main/index.ts",
-    "publish-docs": "[ -d ./docs ] && [[ ! $(git status --porcelain) ]] && branch=$(git rev-parse --abbrev-ref HEAD) && sha=$(git rev-parse --short HEAD) && t=$(mktemp -d) && cp -R ./docs/ $t && git checkout ghpages && ls -A | grep -wv .git | xargs rm -rf && cp -R $t/ . && git add . && git commit -m \"Updated docs ($sha)\" && git push && git checkout $branch",
-    "release-docs": "npm run clean && npm run docs && npm run publish-docs"
+    "build": "npm run build --workspaces",
+    "clean": "rimraf ./docs && npm run clean --workspaces",
+    "test": "npm run test --workspaces"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/smikhalevski/tiny-router.git"
-  },
-  "keywords": [
-    "url",
-    "path",
-    "route",
-    "router",
-    "lazy",
-    "tiny",
-    "import"
+  "workspaces": [
+    "./packages/router"
   ],
-  "author": "Savva Mikhalevski <smikhalevski@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/smikhalevski/tiny-router/issues"
-  },
-  "homepage": "https://github.com/smikhalevski/tiny-router#readme",
-  "jest": {
-    "preset": "ts-jest",
-    "globals": {
-      "ts-jest": {
-        "diagnostics": {
-          "ignoreCodes": [
-            151001
-          ]
-        }
-      }
-    }
-  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.1",
     "jest": "^27.0.2",
+    "rimraf": "^3.0.2",
     "rollup": "^2.50.5",
     "terser": "^5.7.0",
     "ts-jest": "^27.0.2",
-    "typedoc": "^0.21.4",
-    "typescript": "^4.3.2"
-  },
-  "dependencies": {
-    "@smikhalevski/route-pattern": "^1.0.1"
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
   }
 }
