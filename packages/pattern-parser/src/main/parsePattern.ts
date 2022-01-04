@@ -3,7 +3,7 @@ import {tokenizePattern} from './tokenizePattern';
 import {die} from './misc';
 
 /**
- * Converts pattern to an AST.
+ * Converts pattern to an AST node.
  *
  * @param str The pattern to parse.
  * @throws SyntaxError If unexpected syntax is met.
