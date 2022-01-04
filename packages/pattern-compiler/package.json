@@ -1,7 +1,7 @@
 {
   "name": "@tiny-router/pattern-compiler",
   "version": "1.0.0",
-  "description": "",
+  "description": "Compiles path patterns to path factory functions.",
   "main": "./lib/index-cjs.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",

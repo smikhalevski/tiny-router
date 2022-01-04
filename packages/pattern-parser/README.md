@@ -1,6 +1,6 @@
 # @tiny-router/pattern-parser
 
-The path pattern parser, that supports named variables, variable constraints, bash-like alternation, regular
+The path pattern parser and RegExp compiler, that supports named variables, variable constraints, bash-like alternation, regular
 expressions, and wildcards.
 
 This package is
