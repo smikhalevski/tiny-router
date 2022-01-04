@@ -8,7 +8,7 @@ import {
   NodeType,
   RouterCallback,
 } from './router-types';
-import {convertNodeToRegExp, parsePattern} from '@smikhalevski/route-pattern';
+import {convertNodeToRegExp, parsePattern} from '@tiny-router/pattern-parser';
 
 /**
  * Returns an partial route node that matches path and then forwards routing of the unmatched path tail to its children.

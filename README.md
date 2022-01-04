@@ -15,7 +15,7 @@ fancy browser history bindings nor other framework or library dependencies.
 
 ⚠️ [API documentation is available here.](https://smikhalevski.github.io/tiny-router/)
 
-[Read more about path pattern syntax.](https://github.com/smikhalevski/route-pattern)
+[Read more about path pattern syntax.](./packages/pattern-parser)
 
 ```ts
 import {iif, index, route, resolveRoute} from '@tiny-router/router';

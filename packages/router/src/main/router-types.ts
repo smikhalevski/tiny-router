@@ -1,4 +1,4 @@
-import {IPathNode} from '@smikhalevski/route-pattern';
+import {IPathNode} from '@tiny-router/pattern-parser';
 
 export type RouterCallback<R, C> = (params: Record<string, string>, context: C) => R;
 

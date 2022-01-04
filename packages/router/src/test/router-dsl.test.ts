@@ -1,5 +1,5 @@
 import {IRouteNode, NodeType, route} from '../main';
-import {IPathSegmentNode} from '@smikhalevski/route-pattern';
+import {ISegmentNode} from '@tiny-router/pattern-parser';
 
 describe('route', () => {
 
@@ -39,7 +39,7 @@ describe('route', () => {
     };
 
     node.path.children[0].parent = node.path;
-    (node.path.children[0] as IPathSegmentNode).children[0].parent = node.path.children[0];
+    (node.path.children[0] as ISegmentNode).children[0].parent = node.path.children[0];
 
     expect(route('/foo', cb)).toEqual(node);
   });

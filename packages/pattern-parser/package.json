@@ -1,7 +1,7 @@
 {
-  "name": "@tiny-router/router",
+  "name": "@tiny-router/pattern-parser",
   "version": "1.0.0",
-  "description": "The universal router, that supports complex route patterns and conditional routing.",
+  "description": "The path pattern parser, that supports named variables, variable constraints, bash-like alternation, regular expressions, and wildcards.",
   "main": "./lib/index-cjs.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsc --project ./tsconfig.build.json && npm run rollup && npm run terser",
-    "rollup": "rollup --external @tiny-router/pattern-parser --input ./lib/index.js --file ./lib/index-cjs.js --format cjs --plugin @rollup/plugin-node-resolve",
+    "rollup": "rollup --external tokenizer-dsl --input ./lib/index.js --file ./lib/index-cjs.js --format cjs --plugin @rollup/plugin-node-resolve",
     "terser": "terser --compress --mangle --output ./lib/index-cjs.js -- ./lib/index-cjs.js",
     "clean": "rimraf ./lib",
     "test": "jest --detectOpenHandles"
@@ -22,12 +22,11 @@
   },
   "keywords": [
     "url",
-    "path",
     "route",
-    "router",
-    "lazy",
-    "tiny",
-    "import"
+    "path",
+    "pattern",
+    "parser",
+    "tokenizer"
   ],
   "author": "Savva Mikhalevski <smikhalevski@gmail.com>",
   "license": "MIT",
@@ -47,7 +46,7 @@
       }
     }
   },
-  "peerDependencies": {
-    "@tiny-router/pattern-parser": "^1.0.0"
+  "dependencies": {
+    "tokenizer-dsl": "^2.0.0"
   }
 }

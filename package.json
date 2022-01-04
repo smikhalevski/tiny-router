@@ -7,6 +7,8 @@
     "test": "npm run test --workspaces"
   },
   "workspaces": [
+    "./packages/pattern-parser",
+    "./packages/pattern-compiler",
     "./packages/router"
   ],
   "devDependencies": {

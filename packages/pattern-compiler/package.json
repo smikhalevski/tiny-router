@@ -1,7 +1,7 @@
 {
-  "name": "@tiny-router/router",
+  "name": "@tiny-router/pattern-compiler",
   "version": "1.0.0",
-  "description": "The universal router, that supports complex route patterns and conditional routing.",
+  "description": "",
   "main": "./lib/index-cjs.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -22,12 +22,11 @@
   },
   "keywords": [
     "url",
-    "path",
     "route",
-    "router",
-    "lazy",
-    "tiny",
-    "import"
+    "path",
+    "pattern",
+    "parser",
+    "tokenizer"
   ],
   "author": "Savva Mikhalevski <smikhalevski@gmail.com>",
   "license": "MIT",
@@ -47,7 +46,7 @@
       }
     }
   },
-  "peerDependencies": {
+  "dependencies": {
     "@tiny-router/pattern-parser": "^1.0.0"
   }
 }
