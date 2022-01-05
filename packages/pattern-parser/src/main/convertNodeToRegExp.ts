@@ -38,13 +38,13 @@ export interface INodeToRegExpConverterOptions {
   greedyWildcardPattern?: string;
 
   /**
-   * The `RegExp` pattern that should be used to match a value of an unconstrained variable.
+   * The `RegExp` pattern that should be used to match a value of an unconstrained param.
    *
    * **Note:** Must not contain capturing groups.
    *
    * @default "[^/]*"
    */
-  unconstrainedVariablePattern?: string;
+  unconstrainedParamPattern?: string;
 }
 
 /**
@@ -59,20 +59,20 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
     pathSeparatorPattern = '/',
     wildcardPattern = '[^/]*',
     greedyWildcardPattern = '.*',
-    unconstrainedVariablePattern = '[^/]*',
+    unconstrainedParamPattern = '[^/]*',
   } = options;
 
   const patternOptions: IRegExpPatternOptions = {
     _groupCount: 0,
-    _varGroupIndices: [],
+    _paramGroupIndices: [],
     _pathSeparatorPattern: pathSeparatorPattern,
     _wildcardPattern: wildcardPattern,
     _greedyWildcardPattern: greedyWildcardPattern,
-    _unconstrainedVariablePattern: unconstrainedVariablePattern,
+    _unconstrainedParamPattern: unconstrainedParamPattern,
   };
 
   const pattern = createRegExpPattern(node, patternOptions);
-  const {_groupCount, _varGroupIndices} = patternOptions;
+  const {_groupCount, _paramGroupIndices} = patternOptions;
 
   const re = RegExp('^' + pattern, caseSensitive ? '' : 'i');
 
@@ -88,7 +88,7 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
     if (arr != null) {
       const groups = arr.groups ||= Object.create(null);
 
-      for (const [name, groupIndex] of _varGroupIndices) {
+      for (const [name, groupIndex] of _paramGroupIndices) {
         groups[name] ||= arr[groupIndex];
       }
     }
@@ -106,13 +106,13 @@ interface IRegExpPatternOptions {
   _groupCount: number;
 
   /**
-   * The mutable list of variable name and corresponding capturing group index pairs (in-out parameter).
+   * The mutable list of param name and corresponding capturing group index pairs (in-out parameter).
    */
-  _varGroupIndices: [string, number][];
+  _paramGroupIndices: [string, number][];
   _pathSeparatorPattern: string;
   _wildcardPattern: string;
   _greedyWildcardPattern: string;
-  _unconstrainedVariablePattern: string;
+  _unconstrainedParamPattern: string;
 }
 
 /**
@@ -127,9 +127,9 @@ function createRegExpPattern(node: Node, options: IRegExpPatternOptions): string
     case NodeType.SEGMENT:
       return concatRegExpPatterns(node.children, '', options);
 
-    case NodeType.VARIABLE:
-      options._varGroupIndices.push([node.name, ++options._groupCount]);
-      return '(' + (node.constraint ? createRegExpPattern(node.constraint, options) : options._unconstrainedVariablePattern) + ')';
+    case NodeType.PARAM:
+      options._paramGroupIndices.push([node.name, ++options._groupCount]);
+      return '(' + (node.constraint ? createRegExpPattern(node.constraint, options) : options._unconstrainedParamPattern) + ')';
 
     case NodeType.ALT:
       return '(?:' + concatRegExpPatterns(node.children, '|', options) + ')';

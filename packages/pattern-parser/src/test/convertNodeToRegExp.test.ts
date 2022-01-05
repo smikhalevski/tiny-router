@@ -2,27 +2,39 @@ import {convertNodeToRegExp, parsePattern} from '../main';
 
 describe('convertNodeToRegExp', () => {
 
-  test('converts a variable', () => {
+  test('converts a param', () => {
     expect(convertNodeToRegExp(parsePattern(':foo'))).toEqual(/^([^/]*)/i);
   });
 
-  test('converts a variable with a text constraint', () => {
+  test('converts a param with custom pattern', () => {
+    expect(convertNodeToRegExp(parsePattern(':foo'), {unconstrainedParamPattern: 'abc'})).toEqual(/^(abc)/i);
+  });
+
+  test('converts a param with a wildcard constraint', () => {
+    expect(convertNodeToRegExp(parsePattern(':foo *'))).toEqual(/^([^/]*)/i);
+  });
+
+  test('converts a param with a greedy wildcard constraint', () => {
+    expect(convertNodeToRegExp(parsePattern(':foo **'))).toEqual(/^(.*)/i);
+  });
+
+  test('converts a param with a text constraint', () => {
     expect(convertNodeToRegExp(parsePattern(':foo"bar"'))).toEqual(/^(bar)/i);
   });
 
-  test('converts a variable with a regexp constraint', () => {
+  test('converts a param with a regexp constraint', () => {
     expect(convertNodeToRegExp(parsePattern(':foo(\\d+)'))).toEqual(/^((?:\d+))/i);
   });
 
-  test('converts a variable with an alternation constraint', () => {
+  test('converts a param with an alternation constraint', () => {
     expect(convertNodeToRegExp(parsePattern(':foo { foo, bar }'))).toEqual(/^((?:foo|bar))/i);
   });
 
-  test('converts a variable with an empty alternation constraint', () => {
+  test('converts a param with an empty alternation constraint', () => {
     expect(convertNodeToRegExp(parsePattern(':foo{}'))).toEqual(/^((?:))/i);
   });
 
-  test('converts variables with respect to regexp group count', () => {
+  test('converts params with respect to regexp group count', () => {
     expect(convertNodeToRegExp(parsePattern('(([abc]))/:foo(\\d+)'))).toEqual(/^(?:([abc]))\/((?:\d+))/i);
   });
 
@@ -40,6 +52,10 @@ describe('convertNodeToRegExp', () => {
 
   test('converts greedy wildcards', () => {
     expect(convertNodeToRegExp(parsePattern('**'))).toEqual(/^.*/i);
+  });
+
+  test('converts greedy wildcards in an alternation', () => {
+    expect(convertNodeToRegExp(parsePattern('{**}'))).toEqual(/^(?:.*)/i);
   });
 
   test('converts an alternation', () => {
@@ -88,49 +104,61 @@ describe('convertNodeToRegExp', () => {
     expect(re.exec('/ABC')).toEqual(expect.objectContaining(['/ABC']));
   });
 
-  test('merges native groups and variables', () => {
+  test('uses a custom path separator', () => {
+    expect(convertNodeToRegExp(parsePattern('/foo/bar'), {pathSeparatorPattern: '\\\\'})).toEqual(/^\\foo\\bar/i);
+  });
+
+  test('uses a custom wildcard pattern', () => {
+    expect(convertNodeToRegExp(parsePattern('*'), {wildcardPattern: 'abc'})).toEqual(/^abc/i);
+  });
+
+  test('uses a custom greedy wildcard pattern', () => {
+    expect(convertNodeToRegExp(parsePattern('**'), {greedyWildcardPattern: 'abc'})).toEqual(/^abc/i);
+  });
+
+  test('merges native groups and params', () => {
     const re = convertNodeToRegExp(parsePattern('/:foo/((?<bar>\\w+))'));
 
     expect(re.exec('/abc/123')?.groups).toEqual({foo: 'abc', bar: '123'});
   });
 
-  test('variables do not overwrite native groups with the same name', () => {
+  test('params do not overwrite native groups with the same name', () => {
     const re = convertNodeToRegExp(parsePattern('/:foo/((?<foo>\\w+))'));
 
     expect(re.exec('/abc/123')?.groups).toEqual({foo: '123'});
   });
 
-  test('a variable can be named __proto__', () => {
+  test('a param can be named __proto__', () => {
     const re = convertNodeToRegExp(parsePattern('/:__proto__'));
 
     expect(re.exec('/abc')?.groups?.__proto__).toBe('abc');
   });
 
-  test('a variable can be preceded by a string', () => {
+  test('a param can be preceded by a string', () => {
     const re = convertNodeToRegExp(parsePattern('/foo-:bar'));
 
     expect(re.exec('/foo-aaa')?.groups?.bar).toBe('aaa');
   });
 
-  test('a variable can be followed by a string', () => {
+  test('a param can be followed by a string', () => {
     const re = convertNodeToRegExp(parsePattern('/:bar{*}-foo'));
 
     expect(re.exec('/aaa-foo')?.groups?.bar).toBe('aaa');
   });
 
-  test('sequential variables without a constraint', () => {
+  test('sequential params without a constraint', () => {
     const re = convertNodeToRegExp(parsePattern('/:foo:bar'));
 
     expect(re.exec('/123abc')?.groups).toEqual({foo: '123abc', bar: ''});
   });
 
-  test('sequential variables with a constraint', () => {
+  test('sequential params with a constraint', () => {
     const re = convertNodeToRegExp(parsePattern('/:foo:bar{abc}'));
 
     expect(re.exec('/123abc')?.groups).toEqual({foo: '123', bar: 'abc'});
   });
 
-  test('multiple variables with the same name', () => {
+  test('multiple params with the same name', () => {
     const re = convertNodeToRegExp(parsePattern('/:foo/:foo'));
 
     expect(re.exec('/123/abc')?.groups).toEqual({foo: '123'});

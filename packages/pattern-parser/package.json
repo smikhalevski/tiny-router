@@ -1,7 +1,7 @@
 {
   "name": "@tiny-router/pattern-parser",
   "version": "1.0.0",
-  "description": "The path pattern parser and RegExp compiler, that supports named variables, variable constraints, bash-like alternation, regular expressions, and wildcards.",
+  "description": "The path pattern parser and RegExp compiler, that supports named params, param constraints, bash-like alternation, regular expressions, and wildcards.",
   "main": "./lib/index-cjs.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",

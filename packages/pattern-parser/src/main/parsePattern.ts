@@ -25,7 +25,7 @@ export function parsePattern(str: string): IPathNode {
 
   const pushNode = (node: Node): void => {
 
-    if (parentNode.nodeType === NodeType.VARIABLE) {
+    if (parentNode.nodeType === NodeType.PARAM) {
       if (parentNode.constraint) {
         parentNode = parentNode.parent || die();
       } else {
@@ -73,12 +73,12 @@ export function parsePattern(str: string): IPathNode {
 
   const length = tokenizePattern(str, {
 
-    variable(name, start, end) {
-      if (parentNode.nodeType === NodeType.VARIABLE) {
+    param(name, start, end) {
+      if (parentNode.nodeType === NodeType.PARAM) {
         parentNode = parentNode.parent || die();
       }
       const node: Node = {
-        nodeType: NodeType.VARIABLE,
+        nodeType: NodeType.PARAM,
         name,
         constraint: null,
         parent: parentNode,

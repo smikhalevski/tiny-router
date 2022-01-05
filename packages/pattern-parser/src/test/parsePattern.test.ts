@@ -1,4 +1,4 @@
-import {IVariableNode, Node, NodeType, parsePattern} from '../main';
+import {IParamNode, Node, NodeType, parsePattern} from '../main';
 
 describe('parsePattern', () => {
 
@@ -358,7 +358,7 @@ describe('parsePattern', () => {
     expect(parsePattern('(\\d+)')).toEqual(rootNode);
   });
 
-  test('parses variable', () => {
+  test('parses param', () => {
     let node1: Node;
     let node11: Node;
 
@@ -370,7 +370,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: null,
               parent: null,
@@ -394,7 +394,7 @@ describe('parsePattern', () => {
     expect(parsePattern(':foo')).toEqual(rootNode);
   });
 
-  test('parses multiple variables with same names', () => {
+  test('parses multiple params with same names', () => {
     let node1: Node;
     let node11: Node;
     let node2: Node;
@@ -408,7 +408,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: null,
               parent: null,
@@ -424,7 +424,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node21 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: null,
               parent: null,
@@ -451,9 +451,9 @@ describe('parsePattern', () => {
     expect(parsePattern(':foo/:foo')).toEqual(rootNode);
   });
 
-  test('parses variable with text constraint', () => {
+  test('parses param with text constraint', () => {
     let node1: Node;
-    let node11: IVariableNode;
+    let node11: IParamNode;
     let node111: Node;
 
     const rootNode: Node = {
@@ -464,7 +464,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: node111 = {
                 nodeType: NodeType.TEXT,
@@ -495,9 +495,9 @@ describe('parsePattern', () => {
     expect(parsePattern(':foo bar')).toEqual(rootNode);
   });
 
-  test('parses variable with quoted text constraint', () => {
+  test('parses param with quoted text constraint', () => {
     let node1: Node;
-    let node11: IVariableNode;
+    let node11: IParamNode;
     let node111: Node;
 
     const rootNode: Node = {
@@ -508,7 +508,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: node111 = {
                 nodeType: NodeType.TEXT,
@@ -539,9 +539,9 @@ describe('parsePattern', () => {
     expect(parsePattern(':foo"bar"')).toEqual(rootNode);
   });
 
-  test('does not overwrite variable constraint', () => {
+  test('does not overwrite param constraint', () => {
     let node1: Node;
-    let node11: IVariableNode;
+    let node11: IParamNode;
     let node111: Node;
     let node12: Node;
 
@@ -553,7 +553,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: node111 = {
                 nodeType: NodeType.TEXT,
@@ -592,7 +592,7 @@ describe('parsePattern', () => {
     expect(parsePattern(':foo"bar" qux')).toEqual(rootNode);
   });
 
-  test('parses sequential variables', () => {
+  test('parses sequential params', () => {
     let node1: Node;
     let node11: Node;
     let node12: Node;
@@ -605,7 +605,7 @@ describe('parsePattern', () => {
           nodeType: NodeType.SEGMENT,
           children: [
             node11 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'foo',
               constraint: null,
               parent: null,
@@ -613,7 +613,7 @@ describe('parsePattern', () => {
               end: 4,
             },
             node12 = {
-              nodeType: NodeType.VARIABLE,
+              nodeType: NodeType.PARAM,
               name: 'bar',
               constraint: null,
               parent: null,
@@ -780,7 +780,7 @@ describe('parsePattern', () => {
     expect(parsePattern('{foo, bar}')).toEqual(rootNode);
   });
 
-  test('throws on invalid variable name', () => {
+  test('throws on invalid param name', () => {
     expect(() => parsePattern(':123foo')).toThrow(new SyntaxError('Unexpected syntax at 0'));
   });
 

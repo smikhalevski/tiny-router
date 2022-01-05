@@ -1,6 +1,6 @@
 # @tiny-router/pattern-parser
 
-The path pattern parser and RegExp compiler, that supports named variables, variable constraints, bash-like alternation, regular
+The path pattern parser and RegExp compiler, that supports named params, param constraints, bash-like alternation, regular
 expressions, and wildcards.
 
 This package is
@@ -40,7 +40,7 @@ Use the `\` char inside a quoted string literal to escape any other chars: `"foo
 
 `(\\d+)` declares a regular expression, spaces have meaning inside a regular expression.
 
-RegExps can contain a named capturing groups which are merged with variables. For example, `/:foo/((?<bar>abc))` would
+RegExps can contain a named capturing groups which are merged with params. For example, `/:foo/((?<bar>abc))` would
 match `/123/abc` and groups would be `{foo: '123', bar: 'abc'}`.
 
 ## Wildcards
@@ -60,24 +60,24 @@ example, `/foo/([^/]+)/bar` would match `/foo/okay/bar` and won't match `/foo//b
 
 Alternation supports nesting, for example `/foo{ -bar, /(\\d+)/qux }` would match `/foo-bar` and `/foo/123/qux`.
 
-## Variables
+## Params
 
-`:foo` declares a variable. Variable name must be a valid JS variable identifier `^[A-Za-z0-9$_][A-Za-z0-9$_]*$`.
+`:foo` declares a param. Param name must be a valid JS param identifier `^[A-Za-z0-9$_][A-Za-z0-9$_]*$`.
 
-By default, variables match everything except the path separator.
+By default, params match everything except the path separator.
 
-A single pattern that immediately follows the variable declaration is treated as a variable constraint. For
-example,`:foo bar` and `:foo"bar"` would both read variable `foo` and treat `bar` as its string literal constraint.
+A single pattern that immediately follows the param declaration is treated as a param constraint. For
+example,`:foo bar` and `:foo"bar"` would both read param `foo` and treat `bar` as its string literal constraint.
 
-`:foo(\\d+)` declares a variable whose value is constrained by a regular expression.
+`:foo (\\d+)` declares a param whose value is constrained by a regular expression.
 
-`:foo{ a, b }` declares a variable whose value is constrained by an alternation.
+`:foo { a, b }` declares a param whose value is constrained by an alternation.
 
-`:foo{**}` variables can be constrained with wildcards.
+`:foo **` params can be constrained with wildcards.
 
-Variables can be nested through an alternation: `/aaa/ :foo{ /bbb, /ccc/:bar }`.
+Params can be nested through an alternation: `/aaa/ :foo{ /bbb, /ccc/:bar }`.
 
-Variables are not treated as constraints for other variables. For example, `:foo:bar{abc}` would match `123abc` and
+Params are not treated as constraints for other params. For example, `:foo:bar{abc}` would match `123abc` and
 groups would be `{foo: '123', bar: 'abc'}`.
 
 If you want to use `:` as a text in your pattern, then wrap in quotes `":"`.

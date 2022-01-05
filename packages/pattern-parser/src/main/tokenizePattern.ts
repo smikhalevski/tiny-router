@@ -9,19 +9,19 @@ const isSpaceChar: CharCodeChecker = (c) =>
     || c === CharCode['\r']
     || c === CharCode['\n'];
 
-const isVariableNameStartChar: CharCodeChecker = (c) =>
+const isParamNameStartChar: CharCodeChecker = (c) =>
     c >= CharCode['a'] && c <= CharCode['z']
     || c >= CharCode['A'] && c <= CharCode['Z']
     || c === CharCode['$']
     || c === CharCode['_'];
 
-const isVariableNameChar: CharCodeChecker = (c) =>
-    isVariableNameStartChar(c)
+const isParamNameChar: CharCodeChecker = (c) =>
+    isParamNameStartChar(c)
     || c >= CharCode['0'] && c <= CharCode['9'];
 
 const takeSpace = all(char(isSpaceChar));
 
-const takeVariableName = seq(char(isVariableNameStartChar), all(char(isVariableNameChar)));
+const takeParamName = seq(char(isParamNameStartChar), all(char(isParamNameChar)));
 
 const takeAltStart = text('{');
 
@@ -35,12 +35,12 @@ const takeWildcard = text('*');
 
 const takePathSeparator = text('/');
 
-const takeVariable: Taker = (str, i) => {
+const takeParam: Taker = (str, i) => {
   if (str.charCodeAt(i) !== CharCode[':']) {
     return ResultCode.NO_MATCH;
   }
 
-  const j = takeVariableName(str, ++i);
+  const j = takeParamName(str, ++i);
 
   return j > i ? j : ERROR_CODE;
 };
@@ -122,9 +122,9 @@ const takeRegExp: Taker = (str, i) => {
 export interface IPatternTokenizeHandler {
 
   /**
-   * Triggered when a variable declaration was read.
+   * Triggered when a param declaration was read.
    */
-  variable?(name: string, start: number, end: number): void;
+  param?(name: string, start: number, end: number): void;
 
   /**
    * Triggered when an alternation opening bracket was read.
@@ -180,7 +180,7 @@ export interface IPatternTokenizeHandler {
  */
 export function tokenizePattern(str: string, handler: IPatternTokenizeHandler): number {
   const {
-    variable,
+    param,
     altStart,
     altEnd,
     altSeparator,
@@ -219,10 +219,10 @@ export function tokenizePattern(str: string, handler: IPatternTokenizeHandler): 
       break;
     }
 
-    j = takeVariable(str, i);
+    j = takeParam(str, i);
     if (j >= 0) {
       emitText();
-      variable?.(str.substring(i + 1, j), i, j);
+      param?.(str.substring(i + 1, j), i, j);
       i = j;
       continue;
     } else if (j === ERROR_CODE) {

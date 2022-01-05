@@ -1,7 +1,7 @@
 export const enum NodeType {
   PATH,
   SEGMENT,
-  VARIABLE,
+  PARAM,
   ALT,
   WILDCARD,
   REG_EXP,
@@ -12,7 +12,7 @@ export type Node =
     | IPathNode
     | ISegmentNode
     | IAltNode
-    | IVariableNode
+    | IParamNode
     | IWildcardNode
     | IRegExpNode
     | ITextNode;
@@ -39,8 +39,8 @@ export interface IAltNode extends INode {
   children: Node[];
 }
 
-export interface IVariableNode extends INode {
-  nodeType: NodeType.VARIABLE;
+export interface IParamNode extends INode {
+  nodeType: NodeType.PARAM;
   name: string;
   constraint: Node | null;
 }

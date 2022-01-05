@@ -2,7 +2,7 @@ import {IPatternTokenizeHandler, tokenizePattern} from '../main';
 
 describe('tokenizePattern', () => {
 
-  const variableMock = jest.fn();
+  const paramMock = jest.fn();
   const altStartMock = jest.fn();
   const altEndMock = jest.fn();
   const altSeparatorMock = jest.fn();
@@ -12,7 +12,7 @@ describe('tokenizePattern', () => {
   const pathSeparatorMock = jest.fn();
 
   const handler: IPatternTokenizeHandler = {
-    variable: variableMock,
+    param: paramMock,
     altStart: altStartMock,
     altEnd: altEndMock,
     altSeparator: altSeparatorMock,
@@ -23,7 +23,7 @@ describe('tokenizePattern', () => {
   };
 
   beforeEach(() => {
-    variableMock.mockReset();
+    paramMock.mockReset();
     altStartMock.mockReset();
     altEndMock.mockReset();
     altSeparatorMock.mockReset();
@@ -40,7 +40,7 @@ describe('tokenizePattern', () => {
     expect(tokenizePattern('\n', handler)).toBe(1);
     expect(tokenizePattern('\r', handler)).toBe(1);
 
-    expect(variableMock).not.toHaveBeenCalled();
+    expect(paramMock).not.toHaveBeenCalled();
     expect(altStartMock).not.toHaveBeenCalled();
     expect(altEndMock).not.toHaveBeenCalled();
     expect(altSeparatorMock).not.toHaveBeenCalled();
@@ -50,25 +50,25 @@ describe('tokenizePattern', () => {
     expect(pathSeparatorMock).not.toHaveBeenCalled();
   });
 
-  test('parses variables', () => {
+  test('parses params', () => {
     expect(tokenizePattern(':foo', handler)).toBe(4);
 
-    expect(variableMock).toHaveBeenCalledTimes(1);
-    expect(variableMock).toHaveBeenCalledWith('foo', 0, 4);
+    expect(paramMock).toHaveBeenCalledTimes(1);
+    expect(paramMock).toHaveBeenCalledWith('foo', 0, 4);
   });
 
-  test('does not parse variables that start with number', () => {
+  test('does not parse param names that start with a number', () => {
     expect(tokenizePattern(':123foo', handler)).toBe(0);
 
-    expect(variableMock).not.toHaveBeenCalled();
+    expect(paramMock).not.toHaveBeenCalled();
     expect(textMock).not.toHaveBeenCalled();
   });
 
-  test('parses variables with numbers', () => {
+  test('parses param names that contain numbers', () => {
     expect(tokenizePattern(':foo123', handler)).toBe(7);
 
-    expect(variableMock).toHaveBeenCalledTimes(1);
-    expect(variableMock).toHaveBeenCalledWith('foo123', 0, 7);
+    expect(paramMock).toHaveBeenCalledTimes(1);
+    expect(paramMock).toHaveBeenCalledWith('foo123', 0, 7);
   });
 
   test('parses alternation start', () => {
@@ -209,9 +209,9 @@ describe('tokenizePattern', () => {
     expect(textMock).toHaveBeenNthCalledWith(1, 'aaa', 1, 4);
     expect(textMock).toHaveBeenNthCalledWith(2, 'qqq', 25, 30);
 
-    expect(variableMock).toHaveBeenCalledTimes(2);
-    expect(variableMock).toHaveBeenNthCalledWith(1, 'foo', 7, 11);
-    expect(variableMock).toHaveBeenNthCalledWith(2, 'baz', 20, 24);
+    expect(paramMock).toHaveBeenCalledTimes(2);
+    expect(paramMock).toHaveBeenNthCalledWith(1, 'foo', 7, 11);
+    expect(paramMock).toHaveBeenNthCalledWith(2, 'baz', 20, 24);
 
     expect(regExpMock).toHaveBeenCalledTimes(1);
     expect(regExpMock).toHaveBeenCalledWith('\\d+', 0, 12, 17);
@@ -239,8 +239,8 @@ describe('tokenizePattern', () => {
     expect(altStartMock).toHaveBeenCalledTimes(1);
     expect(altStartMock).toHaveBeenCalledWith(5, 6);
 
-    expect(variableMock).toHaveBeenCalledTimes(1);
-    expect(variableMock).toHaveBeenNthCalledWith(1, 'foo', 7, 11);
+    expect(paramMock).toHaveBeenCalledTimes(1);
+    expect(paramMock).toHaveBeenNthCalledWith(1, 'foo', 7, 11);
 
     expect(regExpMock).not.toHaveBeenCalled();
   });
