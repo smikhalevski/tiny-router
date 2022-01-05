@@ -78,7 +78,7 @@ resolveRoute(routes, '/admin/user/123', {loggedIn: true, admin: true});
 // → {result: 'User 123', params: {userId: '123'}}
 ```
 
-`routes` variable holds a tree of nodes. For example, these nodes can be traversed to assemble a `sitemap.xml` file.
+`routes` param holds a tree of nodes. For example, these nodes can be traversed to assemble a `sitemap.xml` file.
 
 You can employ `meta` DSL callback to add metadata to the node tree. Meta doesn't affect the route resolution process
 and can be used during the manual node tree traversal.

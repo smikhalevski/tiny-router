@@ -1,15 +1,19 @@
 export const enum NodeType {
-  CONCAT,
-  SELECT,
-  STRING,
-  PARAM,
+  CONCAT = 'CONCAT',
+  SELECT = 'SELECT',
+  PARAM = 'PARAM',
+  WILDCARD = 'WILDCARD',
+  REG_EXP = 'REG_EXP',
+  STRING = 'STRING',
 }
 
 export type Node =
     | IConcatNode
     | ISelectNode
-    | IStringNode
-    | IParamNode;
+    | IParamNode
+    | IWildcardNode
+    | IRegExpNode
+    | IStringNode;
 
 export interface IConcatNode {
   nodeType: NodeType.CONCAT;
@@ -21,13 +25,23 @@ export interface ISelectNode {
   children: Node[];
 }
 
+export interface IParamNode {
+  nodeType: NodeType.PARAM;
+  name: string;
+  constraint: Node | null;
+}
+
+export interface IWildcardNode {
+  nodeType: NodeType.WILDCARD;
+  greedy: boolean;
+}
+
+export interface IRegExpNode {
+  nodeType: NodeType.REG_EXP;
+  pattern: string;
+}
+
 export interface IStringNode {
   nodeType: NodeType.STRING;
   value: string;
-}
-
-export interface IParamNode {
-  nodeType: NodeType.PARAM;
-  name: string | null;
-  constraint: Node | null;
 }

@@ -6,7 +6,7 @@ This repository contains a set of packages that make routing within a SPA uncomp
 routing.
 
 [@tiny-router/pattern-parser](./packages/pattern-parser) is the path pattern parser and RegExp compiler, that supports
-named variables, variable constraints, bash-like alternation, regular expressions, and wildcards.
+named params, param constraints, bash-like alternation, regular expressions, and wildcards.
 
 [@tiny-router/pattern-compiler](./packages/pattern-compiler) compiles path patterns to path factory functions.
 

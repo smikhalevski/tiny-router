@@ -1,11 +1,11 @@
 export const enum NodeType {
-  PATH,
-  SEGMENT,
-  PARAM,
-  ALT,
-  WILDCARD,
-  REG_EXP,
-  TEXT,
+  PATH = 'PATH',
+  SEGMENT = 'SEGMENT',
+  ALT = 'ALT',
+  PARAM = 'PARAM',
+  WILDCARD = 'WILDCARD',
+  REG_EXP = 'REG_EXP',
+  TEXT = 'TEXT',
 }
 
 export type Node =
