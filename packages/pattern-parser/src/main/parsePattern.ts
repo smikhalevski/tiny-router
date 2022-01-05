@@ -5,7 +5,7 @@ import {die} from './misc';
 /**
  * Converts pattern to an AST node.
  *
- * @param str The pattern to parse.
+ * @param str The path pattern to parse.
  * @throws SyntaxError If unexpected syntax is met.
  * @returns The root node of the parsed AST.
  */

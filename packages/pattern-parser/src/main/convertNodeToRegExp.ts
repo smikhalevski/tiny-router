@@ -11,39 +11,47 @@ export interface INodeToRegExpConverterOptions {
   caseSensitive?: boolean;
 
   /**
-   * The pattern that matches the path separator.
+   * The `RegExp` pattern that should be used to match the path separator.
+   *
+   * **Note:** Must not contain capturing groups.
    *
    * @default "/"
    */
   pathSeparatorPattern?: string;
 
   /**
-   * The pattern that matches a non-greedy wildcard.
+   * The `RegExp` pattern that should be used to match a non-greedy wildcard.
+   *
+   * **Note:** Must not contain capturing groups.
    *
    * @default "[^/]*"
    */
   wildcardPattern?: string;
 
   /**
-   * The pattern that matches a greedy wildcard.
+   * The `RegExp` pattern that should be used to match a greedy wildcard.
+   *
+   * **Note:** Must not contain capturing groups.
    *
    * @default ".*"
    */
   greedyWildcardPattern?: string;
 
   /**
-   * The pattern that matches a value of an unconstrained variable.
+   * The `RegExp` pattern that should be used to match a value of an unconstrained variable.
+   *
+   * **Note:** Must not contain capturing groups.
    *
    * @default "[^/]*"
    */
-  unconstrainedVarPattern?: string;
+  unconstrainedVariablePattern?: string;
 }
 
 /**
  * Converts pattern AST node to regular expression.
  *
  * @param node The node to convert to `RegExp`.
- * @param options Other options.
+ * @param options The converter options.
  */
 export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterOptions = {}): RegExp {
   const {
@@ -51,24 +59,24 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
     pathSeparatorPattern = '/',
     wildcardPattern = '[^/]*',
     greedyWildcardPattern = '.*',
-    unconstrainedVarPattern = '[^/]*',
+    unconstrainedVariablePattern = '[^/]*',
   } = options;
 
-  const frg: INodeToRegExpFragmentConverterOptions = {
-    _groupIndex: 1,
-    _varEntries: [],
+  const patternOptions: IRegExpPatternOptions = {
+    _groupCount: 0,
+    _varGroupIndices: [],
     _pathSeparatorPattern: pathSeparatorPattern,
     _wildcardPattern: wildcardPattern,
     _greedyWildcardPattern: greedyWildcardPattern,
-    _unconstrainedVarPattern: unconstrainedVarPattern,
+    _unconstrainedVariablePattern: unconstrainedVariablePattern,
   };
 
-  const pattern = createRegExpFragment(node, frg);
-  const {_groupIndex, _varEntries} = frg;
+  const pattern = createRegExpPattern(node, patternOptions);
+  const {_groupCount, _varGroupIndices} = patternOptions;
 
   const re = RegExp('^' + pattern, caseSensitive ? '' : 'i');
 
-  if (_groupIndex === 1) {
+  if (_groupCount === 0) {
     return re;
   }
 
@@ -80,7 +88,7 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
     if (arr != null) {
       const groups = arr.groups ||= Object.create(null);
 
-      for (const [name, groupIndex] of _varEntries) {
+      for (const [name, groupIndex] of _varGroupIndices) {
         groups[name] ||= arr[groupIndex];
       }
     }
@@ -90,41 +98,47 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
   return re;
 }
 
-interface INodeToRegExpFragmentConverterOptions {
-  _groupIndex: number;
-  _varEntries: [string, number][];
+interface IRegExpPatternOptions {
+
+  /**
+   * The total number of capturing groups in the pattern (in-out parameter).
+   */
+  _groupCount: number;
+
+  /**
+   * The mutable list of variable name and corresponding capturing group index pairs (in-out parameter).
+   */
+  _varGroupIndices: [string, number][];
   _pathSeparatorPattern: string;
   _wildcardPattern: string;
   _greedyWildcardPattern: string;
-  _unconstrainedVarPattern: string;
+  _unconstrainedVariablePattern: string;
 }
 
-function createRegExpFragment(node: Node, options: INodeToRegExpFragmentConverterOptions): string {
+/**
+ * Converts an AST node to a `RegExp` pattern.
+ */
+function createRegExpPattern(node: Node, options: IRegExpPatternOptions): string {
   switch (node.nodeType) {
 
     case NodeType.PATH:
-      return (node.absolute ? options._pathSeparatorPattern : '') + concatRegExpFragments(node.children, options._pathSeparatorPattern, options);
+      return (node.absolute ? options._pathSeparatorPattern : '') + concatRegExpPatterns(node.children, options._pathSeparatorPattern, options);
 
     case NodeType.SEGMENT:
-      return concatRegExpFragments(node.children, '', options);
+      return concatRegExpPatterns(node.children, '', options);
 
     case NodeType.VARIABLE:
-      options._varEntries.push([node.name, options._groupIndex++]);
-
-      if (node.constraint) {
-        return '(' + createRegExpFragment(node.constraint, options) + ')';
-      } else {
-        return '(' + options._unconstrainedVarPattern + ')';
-      }
+      options._varGroupIndices.push([node.name, ++options._groupCount]);
+      return '(' + (node.constraint ? createRegExpPattern(node.constraint, options) : options._unconstrainedVariablePattern) + ')';
 
     case NodeType.ALT:
-      return '(?:' + concatRegExpFragments(node.children, '|', options) + ')';
+      return '(?:' + concatRegExpPatterns(node.children, '|', options) + ')';
 
     case NodeType.WILDCARD:
       return node.greedy ? options._greedyWildcardPattern : options._wildcardPattern;
 
     case NodeType.REG_EXP:
-      options._groupIndex += node.groupCount;
+      options._groupCount += node.groupCount;
       return '(?:' + node.pattern + ')';
 
     case NodeType.TEXT:
@@ -132,19 +146,16 @@ function createRegExpFragment(node: Node, options: INodeToRegExpFragmentConverte
   }
 }
 
-function concatRegExpFragments(nodes: Node[], separator: string, options: INodeToRegExpFragmentConverterOptions): string {
-  if (nodes.length === 0) {
-    return '';
-  }
-  if (nodes.length === 1) {
-    return createRegExpFragment(nodes[0], options);
-  }
+/**
+ * Converts nodes to `RegExp` patterns and concatenates them with a separator.
+ */
+function concatRegExpPatterns(nodes: Node[], separator: string, options: IRegExpPatternOptions): string {
   let src = '';
   for (let i = 0; i < nodes.length; ++i) {
     if (i > 0) {
       src += separator;
     }
-    src += createRegExpFragment(nodes[i], options);
+    src += createRegExpPattern(nodes[i], options);
   }
   return src;
 }

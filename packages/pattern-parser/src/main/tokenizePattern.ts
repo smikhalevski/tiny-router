@@ -174,7 +174,7 @@ export interface IPatternTokenizeHandler {
 /**
  * Traverses pattern and invokes callbacks when particular token in met.
  *
- * @param str The pattern to tokenize.
+ * @param str The path pattern to tokenize.
  * @param handler Callbacks to invoke during tokenization.
  * @returns The number of chars that were successfully parsed in `str`.
  */

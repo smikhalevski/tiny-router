@@ -781,18 +781,18 @@ describe('parsePattern', () => {
   });
 
   test('throws on invalid variable name', () => {
-    expect(() => parsePattern(':123foo')).toThrow();
+    expect(() => parsePattern(':123foo')).toThrow(new SyntaxError('Unexpected syntax at 0'));
   });
 
   test('throws on unexpected alternation separator', () => {
-    expect(() => parsePattern('foo, bar}')).toThrow();
+    expect(() => parsePattern('foo, bar}')).toThrow(new SyntaxError('Unexpected alternation separator at 3'));
   });
 
   test('throws on unexpected alternation end', () => {
-    expect(() => parsePattern('foo}')).toThrow();
+    expect(() => parsePattern('foo}')).toThrow(new SyntaxError('Unexpected alternation end at 3'));
   });
 
   test('throws on unterminated alternation', () => {
-    expect(() => parsePattern('{foo')).toThrow();
+    expect(() => parsePattern('{foo')).toThrow(new SyntaxError('Unterminated alternation at 4'));
   });
 });
