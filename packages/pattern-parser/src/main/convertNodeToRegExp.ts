@@ -24,7 +24,7 @@ export interface INodeToRegExpConverterOptions {
    *
    * **Note:** Must not contain capturing groups.
    *
-   * @default "[^/]*"
+   * @default "[^/?#]*"
    */
   wildcardPattern?: string;
 
@@ -33,7 +33,7 @@ export interface INodeToRegExpConverterOptions {
    *
    * **Note:** Must not contain capturing groups.
    *
-   * @default ".*"
+   * @default "[^?#]*"
    */
   greedyWildcardPattern?: string;
 
@@ -42,7 +42,7 @@ export interface INodeToRegExpConverterOptions {
    *
    * **Note:** Must not contain capturing groups.
    *
-   * @default "[^/]*"
+   * @default "[^/?#]*"
    */
   unconstrainedParamPattern?: string;
 }
@@ -57,9 +57,9 @@ export function convertNodeToRegExp(node: Node, options: INodeToRegExpConverterO
   const {
     caseSensitive,
     pathSeparatorPattern = '/',
-    wildcardPattern = '[^/]*',
-    greedyWildcardPattern = '.*',
-    unconstrainedParamPattern = '[^/]*',
+    wildcardPattern = '[^/?#]*',
+    greedyWildcardPattern = '[^?#]*',
+    unconstrainedParamPattern = '[^/?#]*',
   } = options;
 
   const patternOptions: IRegExpPatternOptions = {

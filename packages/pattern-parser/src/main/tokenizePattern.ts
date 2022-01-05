@@ -9,19 +9,17 @@ const isSpaceChar: CharCodeChecker = (c) =>
     || c === CharCode['\r']
     || c === CharCode['\n'];
 
-const isParamNameStartChar: CharCodeChecker = (c) =>
+const isParamNameChar: CharCodeChecker = (c) =>
     c >= CharCode['a'] && c <= CharCode['z']
     || c >= CharCode['A'] && c <= CharCode['Z']
+    || c >= CharCode['0'] && c <= CharCode['9']
     || c === CharCode['$']
-    || c === CharCode['_'];
-
-const isParamNameChar: CharCodeChecker = (c) =>
-    isParamNameStartChar(c)
-    || c >= CharCode['0'] && c <= CharCode['9'];
+    || c === CharCode['_']
+    || c === CharCode['-'];
 
 const takeSpace = all(char(isSpaceChar));
 
-const takeParamName = seq(char(isParamNameStartChar), all(char(isParamNameChar)));
+const takeParamName = all(char(isParamNameChar), {minimumCount: 1});
 
 const takeAltStart = text('{');
 
@@ -42,7 +40,7 @@ const takeParam: Taker = (str, i) => {
 
   const j = takeParamName(str, ++i);
 
-  return j > i ? j : ERROR_CODE;
+  return j === ResultCode.NO_MATCH ? ERROR_CODE : j;
 };
 
 let lastText = '';

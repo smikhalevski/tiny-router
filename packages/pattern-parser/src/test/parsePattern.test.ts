@@ -780,8 +780,8 @@ describe('parsePattern', () => {
     expect(parsePattern('{foo, bar}')).toEqual(rootNode);
   });
 
-  test('throws on invalid param name', () => {
-    expect(() => parsePattern(':123foo')).toThrow(new SyntaxError('Unexpected syntax at 0'));
+  test('throws on missing param name', () => {
+    expect(() => parsePattern('foo: bar')).toThrow(new SyntaxError('Unexpected syntax at 3'));
   });
 
   test('throws on unexpected alternation separator', () => {

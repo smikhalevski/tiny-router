@@ -3,7 +3,7 @@ import {convertNodeToRegExp, parsePattern} from '../main';
 describe('convertNodeToRegExp', () => {
 
   test('converts a param', () => {
-    expect(convertNodeToRegExp(parsePattern(':foo'))).toEqual(/^([^/]*)/i);
+    expect(convertNodeToRegExp(parsePattern(':foo'))).toEqual(/^([^/?#]*)/i);
   });
 
   test('converts a param with custom pattern', () => {
@@ -11,11 +11,11 @@ describe('convertNodeToRegExp', () => {
   });
 
   test('converts a param with a wildcard constraint', () => {
-    expect(convertNodeToRegExp(parsePattern(':foo *'))).toEqual(/^([^/]*)/i);
+    expect(convertNodeToRegExp(parsePattern(':foo *'))).toEqual(/^([^/?#]*)/i);
   });
 
   test('converts a param with a greedy wildcard constraint', () => {
-    expect(convertNodeToRegExp(parsePattern(':foo **'))).toEqual(/^(.*)/i);
+    expect(convertNodeToRegExp(parsePattern(':foo **'))).toEqual(/^([^?#]*)/i);
   });
 
   test('converts a param with a text constraint', () => {
@@ -47,15 +47,15 @@ describe('convertNodeToRegExp', () => {
   });
 
   test('converts wildcards', () => {
-    expect(convertNodeToRegExp(parsePattern('*'))).toEqual(/^[^/]*/i);
+    expect(convertNodeToRegExp(parsePattern('*'))).toEqual(/^[^/?#]*/i);
   });
 
   test('converts greedy wildcards', () => {
-    expect(convertNodeToRegExp(parsePattern('**'))).toEqual(/^.*/i);
+    expect(convertNodeToRegExp(parsePattern('**'))).toEqual(/^[^?#]*/i);
   });
 
   test('converts greedy wildcards in an alternation', () => {
-    expect(convertNodeToRegExp(parsePattern('{**}'))).toEqual(/^(?:.*)/i);
+    expect(convertNodeToRegExp(parsePattern('{**}'))).toEqual(/^(?:[^?#]*)/i);
   });
 
   test('converts an alternation', () => {
@@ -71,7 +71,7 @@ describe('convertNodeToRegExp', () => {
   });
 
   test('converts a complex pattern', () => {
-    expect(convertNodeToRegExp(parsePattern('/aaa{ :foo{ /bbb, :bar(ccc|ddd) }/**}'))).toEqual(/^\/aaa(?:((?:\/bbb|((?:ccc|ddd))))\/.*)/i);
+    expect(convertNodeToRegExp(parsePattern('/aaa{ :foo{ /bbb, :bar(ccc|ddd) }/**}'))).toEqual(/^\/aaa(?:((?:\/bbb|((?:ccc|ddd))))\/[^?#]*)/i);
   });
 
   test('overwrites exec method to support groups', () => {

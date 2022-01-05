@@ -57,8 +57,8 @@ describe('tokenizePattern', () => {
     expect(paramMock).toHaveBeenCalledWith('foo', 0, 4);
   });
 
-  test('does not parse param names that start with a number', () => {
-    expect(tokenizePattern(':123foo', handler)).toBe(0);
+  test('does not parse param with an empty name', () => {
+    expect(tokenizePattern(':', handler)).toBe(0);
 
     expect(paramMock).not.toHaveBeenCalled();
     expect(textMock).not.toHaveBeenCalled();
